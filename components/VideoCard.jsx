@@ -2,6 +2,7 @@ import { ResizeMode, Video } from "expo-av";
 import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { icons } from "../constants";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const VideoCard = ({
   video: {
@@ -9,9 +10,15 @@ const VideoCard = ({
     thumbnail,
     video,
     creator: { username, avatar },
+    users: users,
   },
 }) => {
   const [play, setPlay] = useState(false);
+  const { user: currentUser } = useGlobalContext();
+  const isLiked = users.some(
+    (user) => user.accountId === currentUser.accountId
+  );
+
   return (
     <View className="flex-col items-center px-4 mb-14">
       <View className="flex-row gap-3 items-start">
@@ -38,9 +45,13 @@ const VideoCard = ({
             </Text>
           </View>
         </View>
-        <View className="pt-2">
-          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
-        </View>
+        <TouchableOpacity className="pt-2">
+          <Image
+            source={isLiked ? icons.heartFull : icons.heartEmpty}
+            className="w-5 h-5"
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
       </View>
 
       {play ? (
