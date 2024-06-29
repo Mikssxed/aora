@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { icons } from "../constants";
 import { useGlobalContext } from "../context/GlobalProvider";
+import { toggleLike } from "../lib/appwrite";
 
 const VideoCard = ({
   video: {
@@ -10,13 +11,15 @@ const VideoCard = ({
     thumbnail,
     video,
     creator: { username, avatar },
-    users: users,
+    usersIds: users,
+    $id: id,
   },
+  onRefresh,
 }) => {
   const [play, setPlay] = useState(false);
   const { user: currentUser } = useGlobalContext();
-  const isLiked = users.some(
-    (user) => user.accountId === currentUser.accountId
+  const [isLiked, setIsLiked] = useState(
+    users?.some((user) => user === currentUser.accountId)
   );
 
   return (
@@ -45,7 +48,21 @@ const VideoCard = ({
             </Text>
           </View>
         </View>
-        <TouchableOpacity className="pt-2">
+        <TouchableOpacity
+          onPress={() => {
+            toggleLike({
+              users,
+              id,
+            });
+
+            if (onRefresh) {
+              onRefresh();
+              return;
+            }
+            setIsLiked(!isLiked);
+          }}
+          className="pt-2"
+        >
           <Image
             source={isLiked ? icons.heartFull : icons.heartEmpty}
             className="w-5 h-5"
